@@ -1,0 +1,45 @@
+package compilador;
+
+public class Simbolo {
+
+    // Categorias de símbolos
+    public enum Categoria {
+        VARIAVEL,
+        PROCEDIMENTO,
+        PARAMETRO
+    }
+
+    private String nome;
+    private Token tipo; // INTEGER ou REAL (null para procedimentos)
+    private Categoria categoria;
+    private String escopo; // "global" ou nome do procedimento
+
+    public Simbolo(String nome, Token tipo, Categoria categoria, String escopo) {
+        this.nome = nome;
+        this.tipo = tipo;
+        this.categoria = categoria;
+        this.escopo = escopo;
+    }
+
+    // Getters
+    public String getNome() {
+        return nome;
+    }
+
+    public Token getTipo() {
+        return tipo;
+    }
+
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public String getEscopo() {
+        return escopo;
+    }
+
+    @Override
+    public String toString() {
+        return "Simbolo[" + nome + ", " + tipo + ", " + categoria + ", escopo: " + escopo + "]";
+    }
+}
