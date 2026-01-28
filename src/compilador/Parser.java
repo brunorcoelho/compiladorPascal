@@ -3,10 +3,18 @@ package compilador;
 public class Parser {
     private ScannerLexico lexer;
     private TokenInformacoes tokenAtual;
+    private TabelaSimbolos tabela;
+    private Token tipoAtual;
+    private java.util.List<String> variaveisTemp = new java.util.ArrayList<>();
 
     public Parser(ScannerLexico lexer) {
         this.lexer = lexer;
         this.tokenAtual = lexer.proximoToken();
+        this.tabela = new TabelaSimbolos();
+    }
+
+    public TabelaSimbolos getTabela() {
+        return tabela;
     }
 
     private void avancar() {
@@ -68,9 +76,23 @@ public class Parser {
 
     private void dc_p() {
         consumir(Token.PROCEDURE);
+
+        // Guarda o nome do procedimento
+        String nomeProcedimento = tokenAtual.getLexema();
         consumir(Token.IDENT);
+
+        // Adiciona procedimento à tabela (no escopo global)
+        Simbolo proc = new Simbolo(nomeProcedimento, null, Simbolo.Categoria.PROCEDIMENTO, "global");
+        tabela.adicionar(proc);
+
+        // Entra no escopo do procedimento
+        tabela.entrarEscopo(nomeProcedimento);
+
         parametros();
         corpo_p();
+
+        // Sai do escopo do procedimento
+        tabela.sairEscopo();
     }
 
     private void mais_dc_p() {
@@ -91,9 +113,17 @@ public class Parser {
 
     // <lista_par> -> <variaveis> : <tipo_var> <mais_par>
     private void lista_par() {
+        variaveisTemp.clear(); // Limpa lista
         variaveis();
         consumir(Token.DOIS_PONTOS);
         tipo_var();
+
+        // Adiciona parâmetros à tabela (como PARAMETRO, não VARIAVEL)
+        for (String nomeParam : variaveisTemp) {
+            Simbolo s = new Simbolo(nomeParam, tipoAtual, Simbolo.Categoria.PARAMETRO, tabela.getEscopoAtual());
+            tabela.adicionar(s);
+        }
+
         mais_par();
     }
 
@@ -128,24 +158,37 @@ public class Parser {
     // <dc_v> -> var <variaveis> : <tipo_var>
     private void dc_v() {
         consumir(Token.VAR);
+        variaveisTemp.clear(); // Limpa a lista temporária
         variaveis();
         consumir(Token.DOIS_PONTOS);
         tipo_var();
+
+        // Agora adiciona todas as variáveis com o tipo correto
+        for (String nomeVar : variaveisTemp) {
+            Simbolo s = new Simbolo(nomeVar, tipoAtual, Simbolo.Categoria.VARIAVEL, tabela.getEscopoAtual());
+            tabela.adicionar(s);
+        }
     }
 
     private void tipo_var() {
         if (verificar(Token.REAL)) {
+            tipoAtual = Token.REAL;
             consumir(Token.REAL);
         } else if (verificar(Token.INTEGER)) {
+            tipoAtual = Token.INTEGER;
             consumir(Token.INTEGER);
         } else {
-            erro("Esperado 'real' ou 'integer', encontrado '"
-                    + tokenAtual.getTipo() + "' ('" + tokenAtual.getLexema() + ")");
+            erro("Esperado 'real' ou 'integer'");
         }
     }
 
     private void variaveis() {
+        String nomeVar = tokenAtual.getLexema();
         consumir(Token.IDENT);
+
+        // Adiciona à lista temporária (tipo será definido em dc_v)
+        variaveisTemp.add(nomeVar);
+
         mais_var();
     }
 
