@@ -38,6 +38,10 @@ public class Parser {
         throw new RuntimeException("Erro de sintaxe na linha " + tokenAtual.getLinha() + ": " + mensagem);
     }
 
+    private void erroSemantico(String mensagem) {
+        throw new RuntimeException("Erro semântico na linha " + tokenAtual.getLinha() + ": " + mensagem);
+    }
+
     public void parse() {
         programa();
         System.out.println("Análise sintática concluida com sucesso!");
@@ -80,6 +84,10 @@ public class Parser {
         // Guarda o nome do procedimento
         String nomeProcedimento = tokenAtual.getLexema();
         consumir(Token.IDENT);
+
+        if (tabela.buscar(nomeProcedimento) != null) {
+            erroSemantico("Procedimento '" + nomeProcedimento + "' já declarado");
+        }
 
         // Adiciona procedimento à tabela (no escopo global)
         Simbolo proc = new Simbolo(nomeProcedimento, null, Simbolo.Categoria.PROCEDIMENTO, "global");
@@ -165,6 +173,9 @@ public class Parser {
 
         // Agora adiciona todas as variáveis com o tipo correto
         for (String nomeVar : variaveisTemp) {
+            if (tabela.existeNoEscopoAtual(nomeVar)) {
+                erroSemantico("Variável '" + nomeVar + "' já declarada no escopo atual");
+            }
             Simbolo s = new Simbolo(nomeVar, tipoAtual, Simbolo.Categoria.VARIAVEL, tabela.getEscopoAtual());
             tabela.adicionar(s);
         }
@@ -215,12 +226,20 @@ public class Parser {
         if (verificar(Token.READ)) {
             consumir(Token.READ);
             consumir(Token.ABRE_PAREN);
+            String nomeVar = tokenAtual.getLexema();
+            if (tabela.buscar(nomeVar) == null) {
+                erroSemantico("Variável '" + nomeVar + "' não declarada");
+            }
             consumir(Token.IDENT);
             consumir(Token.FECHA_PAREN);
             consumir(Token.PONTO_VIRGULA);
         } else if (verificar(Token.WRITE)) {
             consumir(Token.WRITE);
             consumir(Token.ABRE_PAREN);
+            String nomeVar = tokenAtual.getLexema();
+            if (tabela.buscar(nomeVar) == null) {
+                erroSemantico("Variável '" + nomeVar + "' não declarada");
+            }
             consumir(Token.IDENT);
             consumir(Token.FECHA_PAREN);
             consumir(Token.PONTO_VIRGULA);
@@ -238,6 +257,10 @@ public class Parser {
             comandos();
             consumir(Token.DOLAR);
         } else if (verificar(Token.IDENT)) {
+            String nomeVar = tokenAtual.getLexema();
+            if (tabela.buscar(nomeVar) == null) {
+                erroSemantico("Variável '" + nomeVar + "' não declarada");
+            }
             consumir(Token.IDENT);
             restoIdent();
             consumir(Token.PONTO_VIRGULA);
@@ -330,6 +353,10 @@ public class Parser {
     // <fator> -> ident | numero_real | numero_int | (<expressao>)
     private void fator() {
         if (verificar(Token.IDENT)) {
+            String nomeVar = tokenAtual.getLexema();
+            if (tabela.buscar(nomeVar) == null) {
+                erroSemantico("Variável '" + nomeVar + "' não declarada");
+            }
             consumir(Token.IDENT);
         } else if (verificar(Token.NUMERO_REAL)) {
             consumir(Token.NUMERO_REAL);
