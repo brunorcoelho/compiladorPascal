@@ -43,6 +43,9 @@ public class Main {
 
             // Imprime o código gerado
             parser.getGerador().imprimir();
+            // Executa o código na máquina virtual
+            MaquinaVirtual vm = new MaquinaVirtual(parser.getGerador().getCodigo());
+            vm.executar();
 
         } catch (IOException e) {
             System.err.println("Erro ao ler o arquivo: " + e.getMessage());
