@@ -41,6 +41,9 @@ public class Main {
             // Imprime a tabela de símbolos
             parser.getTabela().imprimir();
 
+            // Imprime o código gerado
+            parser.getGerador().imprimir();
+
         } catch (IOException e) {
             System.err.println("Erro ao ler o arquivo: " + e.getMessage());
         } catch (RuntimeException e) {

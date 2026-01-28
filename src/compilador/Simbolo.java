@@ -13,12 +13,14 @@ public class Simbolo {
     private Token tipo; // INTEGER ou REAL (null para procedimentos)
     private Categoria categoria;
     private String escopo; // "global" ou nome do procedimento
+    private int endereco;
 
-    public Simbolo(String nome, Token tipo, Categoria categoria, String escopo) {
+    public Simbolo(String nome, Token tipo, Categoria categoria, String escopo, int endereco) {
         this.nome = nome;
         this.tipo = tipo;
         this.categoria = categoria;
         this.escopo = escopo;
+        this.endereco = endereco;
     }
 
     // Getters
@@ -38,8 +40,12 @@ public class Simbolo {
         return escopo;
     }
 
+    public int getEndereco() {
+        return endereco;
+    }
+
     @Override
     public String toString() {
-        return "Simbolo[" + nome + ", " + tipo + ", " + categoria + ", escopo: " + escopo + "]";
+        return "Simbolo[" + nome + ", " + tipo + ", " + categoria + ", escopo: " + escopo + ", end: " + endereco + "]";
     }
 }
