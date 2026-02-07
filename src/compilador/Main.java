@@ -9,8 +9,8 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
 
-        String caminhoFonte = "/home/bruno/Documentos/Universidade/Projeto de Compiladores/Trabalho/descricao/correto.pascal.txt";
-        String caminhoObjeto = "/home/bruno/Documentos/Universidade/Projeto de Compiladores/Trabalho/descricao/saida.obj";
+        String caminhoFonte = "../descricao/correto.pascal.txt";
+        String caminhoObjeto = "../descricao/saida.obj";
 
         try {
 
