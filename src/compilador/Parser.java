@@ -81,13 +81,13 @@ public class Parser {
             dc_v();
             mais_dc();
         } else if (verificar(Token.PROCEDURE)) {
-            
+
             indicesDsviProcs.clear();
             indicesDsviProcs.add(gerador.getProximoIndice());
             gerador.emitir("DSVI", 0);
             dc_p();
             mais_dc_p();
-            
+
             int enderecoFinal = gerador.getProximoIndice();
             for (int indice : indicesDsviProcs) {
                 gerador.alterarArgumento(indice, enderecoFinal);
@@ -110,8 +110,6 @@ public class Parser {
             erroSemantico("Procedimento '" + nomeProcedimento + "' já declarado");
         }
 
-        
-        
         enderecoProc = gerador.getProximoIndice();
         numParametros = 0;
         numLocais = 0;
@@ -127,7 +125,7 @@ public class Parser {
     private void mais_dc_p() {
         if (verificar(Token.PONTO_VIRGULA)) {
             consumir(Token.PONTO_VIRGULA);
-            
+
             indicesDsviProcs.add(gerador.getProximoIndice());
             gerador.emitir("DSVI", 0);
             dc_p();
@@ -143,16 +141,15 @@ public class Parser {
         }
     }
 
-    
     private void lista_par() {
         variaveisTemp.clear();
         variaveis();
         consumir(Token.DOIS_PONTOS);
         tipo_var();
-        
+
         for (String nomeParam : variaveisTemp) {
             int endereco = gerador.alocarMemoria();
-            
+
             Simbolo s = new Simbolo(nomeParam, tipoAtual, Simbolo.Categoria.PARAMETRO, tabela.getEscopoAtual(),
                     endereco);
             tabela.adicionar(s);
@@ -172,7 +169,6 @@ public class Parser {
     private void corpo_p() {
         dc_loc();
 
-        
         for (int i = enderecosParametros.size() - 1; i >= 0; i--) {
             gerador.emitir("ARMZ", enderecosParametros.get(i));
         }
@@ -181,8 +177,6 @@ public class Parser {
         comandos();
         consumir(Token.END);
 
-        
-        
         gerador.emitir("DESM", numParametros + numLocais);
         gerador.emitir("RTPR");
     }
@@ -190,7 +184,7 @@ public class Parser {
     private void dc_loc() {
         if (verificar(Token.VAR)) {
             dc_v();
-            mais_dc();
+            mais_dcloc();
         }
     }
 
@@ -201,21 +195,19 @@ public class Parser {
         }
     }
 
-    
     private void dc_v() {
         consumir(Token.VAR);
         variaveisTemp.clear();
         variaveis();
         consumir(Token.DOIS_PONTOS);
         tipo_var();
-        
+
         for (String nomeVar : variaveisTemp) {
             if (tabela.existeNoEscopoAtual(nomeVar)) {
                 erroSemantico("Variável '" + nomeVar + "' já declarada no escopo atual");
             }
             int endereco = gerador.alocarMemoria();
 
-            
             gerador.emitir("ALME", 1);
             if (!tabela.getEscopoAtual().equals("global")) {
                 numLocais++;
@@ -241,7 +233,6 @@ public class Parser {
         String nomeVar = tokenAtual.getLexema();
         consumir(Token.IDENT);
 
-        
         variaveisTemp.add(nomeVar);
 
         mais_var();
@@ -279,7 +270,6 @@ public class Parser {
             consumir(Token.FECHA_PAREN);
             consumir(Token.PONTO_VIRGULA);
 
-            
             gerador.emitir("LEIT");
             gerador.emitir("ARMZ", s.getEndereco());
         } else if (verificar(Token.WRITE)) {
@@ -294,7 +284,6 @@ public class Parser {
             consumir(Token.FECHA_PAREN);
             consumir(Token.PONTO_VIRGULA);
 
-            
             gerador.emitir("CRVL", s.getEndereco());
             gerador.emitir("IMPR");
         } else if (verificar(Token.IF)) {
@@ -302,49 +291,41 @@ public class Parser {
             condicao();
             consumir(Token.THEN);
 
-            
             int indiceDsvf = gerador.getProximoIndice();
-            gerador.emitir("DSVF", 0); 
+            gerador.emitir("DSVF", 0);
 
             comandos();
 
-            
             int indiceDsvi = gerador.getProximoIndice();
-            gerador.emitir("DSVI", 0); 
+            gerador.emitir("DSVI", 0);
 
-            
             gerador.alterarArgumento(indiceDsvf, gerador.getProximoIndice());
 
             pfalsa();
 
-            
             gerador.alterarArgumento(indiceDsvi, gerador.getProximoIndice());
 
             consumir(Token.DOLAR);
         } else if (verificar(Token.WHILE)) {
             consumir(Token.WHILE);
 
-            
             int inicioWhile = gerador.getProximoIndice();
 
             condicao();
             consumir(Token.DO);
 
-            
             int indiceDsvf = gerador.getProximoIndice();
-            gerador.emitir("DSVF", 0); 
+            gerador.emitir("DSVF", 0);
 
             comandos();
 
-            
             gerador.emitir("DSVI", inicioWhile);
 
-            
             gerador.alterarArgumento(indiceDsvf, gerador.getProximoIndice());
 
             consumir(Token.DOLAR);
         } else if (verificar(Token.IDENT)) {
-            identAtual = tokenAtual.getLexema(); 
+            identAtual = tokenAtual.getLexema();
             Simbolo s = tabela.buscar(identAtual);
             if (s == null) {
                 erroSemantico("'" + identAtual + "' não declarado");
@@ -371,19 +352,16 @@ public class Parser {
             Simbolo s = tabela.buscar(identAtual);
             gerador.emitir("ARMZ", s.getEndereco());
         } else {
-            
+
             Simbolo proc = tabela.buscar(identAtual);
 
-            
             int indicePusher = gerador.getProximoIndice();
-            gerador.emitir("PUSHER", 0); 
+            gerador.emitir("PUSHER", 0);
 
             lista_arg();
 
-            
             gerador.alterarArgumento(indicePusher, gerador.getProximoIndice() + 1);
 
-            
             gerador.emitir("CHPR", proc.getEndereco());
         }
     }
@@ -401,7 +379,6 @@ public class Parser {
         Simbolo s = tabela.buscar(nomeArg);
         consumir(Token.IDENT);
 
-        
         gerador.emitir("PARAM", s.getEndereco());
 
         mais_ident();
@@ -421,7 +398,6 @@ public class Parser {
         gerador.emitir(operadorRelacional);
     }
 
-    
     private void relacao() {
         if (verificar(Token.IGUAL)) {
             operadorRelacional = "CMIG";
@@ -446,27 +422,23 @@ public class Parser {
         }
     }
 
-    
     private void expressao() {
         termo();
         outros_termos();
     }
 
-    
     private void termo() {
         op_un();
         fator();
         mais_fatores();
     }
 
-    
     private void op_un() {
         if (verificar(Token.MENOS)) {
             consumir(Token.MENOS);
         }
     }
 
-    
     private void fator() {
         if (verificar(Token.IDENT)) {
             String nomeVar = tokenAtual.getLexema();
@@ -476,21 +448,18 @@ public class Parser {
             }
             consumir(Token.IDENT);
 
-            
             gerador.emitir("CRVL", s.getEndereco());
 
         } else if (verificar(Token.NUMERO_REAL)) {
             String valor = tokenAtual.getLexema();
             consumir(Token.NUMERO_REAL);
 
-            
             gerador.emitir("CRCT", valor);
 
         } else if (verificar(Token.NUMERO_INT)) {
             String valor = tokenAtual.getLexema();
             consumir(Token.NUMERO_INT);
 
-            
             gerador.emitir("CRCT", valor);
 
         } else if (verificar(Token.ABRE_PAREN)) {
@@ -502,14 +471,12 @@ public class Parser {
         }
     }
 
-    
     private void outros_termos() {
         if (verificar(Token.MAIS) || verificar(Token.MENOS)) {
-            boolean soma = verificar(Token.MAIS); 
+            boolean soma = verificar(Token.MAIS);
             op_ad();
             termo();
 
-            
             if (soma) {
                 gerador.emitir("SOMA");
             } else {
@@ -520,7 +487,6 @@ public class Parser {
         }
     }
 
-    
     private void op_ad() {
         if (verificar(Token.MAIS)) {
             consumir(Token.MAIS);
@@ -529,14 +495,12 @@ public class Parser {
         }
     }
 
-    
     private void mais_fatores() {
         if (verificar(Token.MULT) || verificar(Token.DIV)) {
-            boolean mult = verificar(Token.MULT); 
+            boolean mult = verificar(Token.MULT);
             op_mul();
             fator();
 
-            
             if (mult) {
                 gerador.emitir("MULT");
             } else {
@@ -547,7 +511,6 @@ public class Parser {
         }
     }
 
-    
     private void op_mul() {
         if (verificar(Token.MULT)) {
             consumir(Token.MULT);

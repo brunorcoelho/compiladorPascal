@@ -8,25 +8,20 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        
+
         String caminhoFonte = "/home/bruno/Documentos/Universidade/Projeto de Compiladores/Trabalho/descricao/correto.pascal.txt";
         String caminhoObjeto = "/home/bruno/Documentos/Universidade/Projeto de Compiladores/Trabalho/descricao/saida.obj";
 
         try {
-            
-            
-            
+
             System.out.println("=== COMPILADOR LALG ===\n");
             System.out.println("Arquivo fonte: " + caminhoFonte);
             System.out.println("------------------------\n");
 
-            
             String codigoFonte = new String(Files.readAllBytes(Paths.get(caminhoFonte)));
 
-            
             ScannerLexico lexer = new ScannerLexico(codigoFonte);
 
-            
             System.out.println("=== TOKENS ENCONTRADOS ===\n");
             ScannerLexico lexerVisual = new ScannerLexico(codigoFonte);
             TokenInformacoes token;
@@ -38,29 +33,21 @@ public class Main {
             } while (token.getTipo() != Token.EOF);
             System.out.println("\n>>> Total de tokens: " + contadorTokens + " <<<\n");
 
-            
             System.out.println("=== ANÁLISE SINTÁTICA ===\n");
             Parser parser = new Parser(lexer);
             parser.parse();
 
-            
             parser.getTabela().imprimir();
 
-            
             parser.getGerador().imprimir();
 
-            
             salvarCodigoObjeto(parser.getGerador().getCodigo(), caminhoObjeto);
             System.out.println("\n>>> Código objeto salvo em: " + caminhoObjeto + " <<<\n");
 
-            
-            
-            
             System.out.println("=== CARREGANDO CÓDIGO OBJETO ===\n");
             List<Instrucao> codigoCarregado = carregarCodigoObjeto(caminhoObjeto);
             System.out.println(">>> " + codigoCarregado.size() + " instruções carregadas <<<");
 
-            
             MaquinaVirtual vm = new MaquinaVirtual(codigoCarregado);
             vm.executar();
 
@@ -71,9 +58,6 @@ public class Main {
         }
     }
 
-    /**
-     * Salva o código objeto em um arquivo de texto
-     */
     private static void salvarCodigoObjeto(List<Instrucao> codigo, String caminho) throws IOException {
         try (PrintWriter writer = new PrintWriter(new FileWriter(caminho))) {
             for (Instrucao inst : codigo) {
@@ -86,9 +70,6 @@ public class Main {
         }
     }
 
-    /**
-     * Carrega o código objeto de um arquivo de texto
-     */
     private static List<Instrucao> carregarCodigoObjeto(String caminho) throws IOException {
         List<Instrucao> codigo = new ArrayList<>();
         List<String> linhas = Files.readAllLines(Paths.get(caminho));
