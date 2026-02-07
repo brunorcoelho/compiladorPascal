@@ -13,6 +13,7 @@ public class Parser {
     private int enderecoProc;
     private int numParametros;
     private int numLocais;
+    private java.util.List<Integer> enderecosParametros = new java.util.ArrayList<>();
 
     public Parser(ScannerLexico lexer) {
         this.lexer = lexer;
@@ -117,6 +118,7 @@ public class Parser {
         Simbolo proc = new Simbolo(nomeProcedimento, null, Simbolo.Categoria.PROCEDIMENTO, "global", enderecoProc);
         tabela.adicionar(proc);
         tabela.entrarEscopo(nomeProcedimento);
+        enderecosParametros.clear();
         parametros();
         corpo_p();
         tabela.sairEscopo();
@@ -155,6 +157,7 @@ public class Parser {
                     endereco);
             tabela.adicionar(s);
             numParametros++;
+            enderecosParametros.add(endereco);
         }
         mais_par();
     }
@@ -168,6 +171,12 @@ public class Parser {
 
     private void corpo_p() {
         dc_loc();
+
+        // Desempilha parâmetros da pilha para memória (ordem reversa)
+        for (int i = enderecosParametros.size() - 1; i >= 0; i--) {
+            gerador.emitir("ARMZ", enderecosParametros.get(i));
+        }
+
         consumir(Token.BEGIN);
         comandos();
         consumir(Token.END);

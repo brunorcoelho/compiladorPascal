@@ -178,8 +178,9 @@ public class MaquinaVirtual {
                     break;
 
                 case "PARAM":
-                    // Passa parâmetro (copia valor para posição)
-                    // Por simplicidade, só incrementa PC
+                    // Passa parâmetro: empilha valor do endereço para ser copiado
+                    int endParam = Integer.parseInt(arg);
+                    pilha.push(memoria[endParam]);
                     pc++;
                     break;
 
