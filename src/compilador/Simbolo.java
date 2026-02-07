@@ -2,7 +2,7 @@ package compilador;
 
 public class Simbolo {
 
-    // Categorias de símbolos
+    
     public enum Categoria {
         VARIAVEL,
         PROCEDIMENTO,
@@ -10,9 +10,9 @@ public class Simbolo {
     }
 
     private String nome;
-    private Token tipo; // INTEGER ou REAL (null para procedimentos)
+    private Token tipo; 
     private Categoria categoria;
-    private String escopo; // "global" ou nome do procedimento
+    private String escopo; 
     private int endereco;
 
     public Simbolo(String nome, Token tipo, Categoria categoria, String escopo, int endereco) {
@@ -23,7 +23,7 @@ public class Simbolo {
         this.endereco = endereco;
     }
 
-    // Getters
+    
     public String getNome() {
         return nome;
     }

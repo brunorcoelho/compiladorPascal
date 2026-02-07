@@ -7,15 +7,15 @@ import java.util.Stack;
 public class MaquinaVirtual {
 
     private List<Instrucao> codigo;
-    private double[] memoria; // Memória para variáveis
-    private Stack<Double> pilha; // Pilha de operandos
-    private Stack<Integer> retorno; // Pilha de endereços de retorno
-    private int pc; // Program Counter (próxima instrução)
+    private double[] memoria; 
+    private Stack<Double> pilha; 
+    private Stack<Integer> retorno; 
+    private int pc; 
     private Scanner scanner;
 
     public MaquinaVirtual(List<Instrucao> codigo) {
         this.codigo = codigo;
-        this.memoria = new double[1000]; // 1000 posições de memória
+        this.memoria = new double[1000]; 
         this.pilha = new Stack<>();
         this.retorno = new Stack<>();
         this.pc = 0;
@@ -32,34 +32,34 @@ public class MaquinaVirtual {
 
             switch (op) {
                 case "INPP":
-                    // Inicia programa - nada a fazer
+                    
                     pc++;
                     break;
 
                 case "PARA":
-                    // Para programa
+                    
                     System.out.println("\n=== PROGRAMA FINALIZADO ===");
                     return;
 
                 case "ALME":
-                    // Aloca memória - nada a fazer (já alocado)
+                    
                     pc++;
                     break;
 
                 case "CRCT":
-                    // Carrega constante na pilha
+                    
                     pilha.push(Double.parseDouble(arg));
                     pc++;
                     break;
 
                 case "CRVL":
-                    // Carrega valor da memória na pilha
+                    
                     pilha.push(memoria[Integer.parseInt(arg)]);
                     pc++;
                     break;
 
                 case "ARMZ":
-                    // Armazena topo da pilha na memória
+                    
                     memoria[Integer.parseInt(arg)] = pilha.pop();
                     pc++;
                     break;
@@ -93,7 +93,7 @@ public class MaquinaVirtual {
                     break;
 
                 case "LEIT":
-                    // Lê valor do usuário
+                    
                     System.out.print("Digite um valor: ");
                     double valor = scanner.nextDouble();
                     pilha.push(valor);
@@ -101,53 +101,53 @@ public class MaquinaVirtual {
                     break;
 
                 case "IMPR":
-                    // Imprime valor
+                    
                     System.out.println("Saída: " + pilha.pop());
                     pc++;
                     break;
 
-                // Comparações
-                case "CMIG": // ==
+                
+                case "CMIG": 
                     pilha.push(pilha.pop().equals(pilha.pop()) ? 1.0 : 0.0);
                     pc++;
                     break;
 
-                case "CMDG": // <>
+                case "CMDG": 
                     pilha.push(!pilha.pop().equals(pilha.pop()) ? 1.0 : 0.0);
                     pc++;
                     break;
 
-                case "CMAI": // >=
+                case "CMAI": 
                     double r1 = pilha.pop();
                     double l1 = pilha.pop();
                     pilha.push(l1 >= r1 ? 1.0 : 0.0);
                     pc++;
                     break;
 
-                case "CPMI": // <=
+                case "CPMI": 
                     double r2 = pilha.pop();
                     double l2 = pilha.pop();
                     pilha.push(l2 <= r2 ? 1.0 : 0.0);
                     pc++;
                     break;
 
-                case "CMMA": // >
+                case "CMMA": 
                     double r3 = pilha.pop();
                     double l3 = pilha.pop();
                     pilha.push(l3 > r3 ? 1.0 : 0.0);
                     pc++;
                     break;
 
-                case "CMME": // <
+                case "CMME": 
                     double r4 = pilha.pop();
                     double l4 = pilha.pop();
                     pilha.push(l4 < r4 ? 1.0 : 0.0);
                     pc++;
                     break;
 
-                // Desvios
+                
                 case "DSVF":
-                    // Desvia se falso (topo = 0)
+                    
                     if (pilha.pop() == 0.0) {
                         pc = Integer.parseInt(arg);
                     } else {
@@ -156,36 +156,36 @@ public class MaquinaVirtual {
                     break;
 
                 case "DSVI":
-                    // Desvio incondicional
+                    
                     pc = Integer.parseInt(arg);
                     break;
 
-                // Procedimentos
+                
                 case "PUSHER":
-                    // Empilha endereço de retorno
+                    
                     retorno.push(Integer.parseInt(arg));
                     pc++;
                     break;
 
                 case "CHPR":
-                    // Chama procedimento
+                    
                     pc = Integer.parseInt(arg);
                     break;
 
                 case "RTPR":
-                    // Retorna de procedimento
+                    
                     pc = retorno.pop();
                     break;
 
                 case "PARAM":
-                    // Passa parâmetro: empilha valor do endereço para ser copiado
+                    
                     int endParam = Integer.parseInt(arg);
                     pilha.push(memoria[endParam]);
                     pc++;
                     break;
 
                 case "DESM":
-                    // Desempilha N valores (limpeza)
+                    
                     pc++;
                     break;
 

@@ -2,8 +2,8 @@ package compilador;
 
 public class Instrucao {
 
-    private String operacao; // Ex: "CRCT", "SOMA", "ARMZ"
-    private String argumento; // Ex: "5", "3", "" (vazio se não tiver)
+    private String operacao; 
+    private String argumento; 
 
     public Instrucao(String operacao) {
         this.operacao = operacao;

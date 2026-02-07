@@ -82,12 +82,12 @@ public class ScannerLexico {
         }
     }
 
-    // ler um identificador ou uma palavra reservada
-    // é chamado quando o caractere atual é uma letra
+    
+    
     private TokenInformacoes lerIdentificadorOuPalavraReservada() {
         StringBuilder lexema = new StringBuilder();
 
-        // enquanto for letra, dígito ou underline, continuar lendo
+        
         while (Character.isLetterOrDigit(caractereAtual) || caractereAtual == '_') {
             lexema.append(caractereAtual);
             avancar();
@@ -95,7 +95,7 @@ public class ScannerLexico {
 
         String palavra = lexema.toString();
 
-        // verifica se é uma palavra reservada
+        
         Token tipo = palavrasReservadas.get(palavra.toLowerCase());
         if (tipo != null) {
             return new TokenInformacoes(tipo, palavra, linha);
@@ -104,20 +104,20 @@ public class ScannerLexico {
         }
     }
 
-    // ler numeros
+    
 
     private TokenInformacoes lerNumero() {
         StringBuilder lexema = new StringBuilder();
-        // antes da virgula
+        
         while (Character.isDigit(caractereAtual)) {
             lexema.append(caractereAtual);
             avancar();
         }
-        // ver se é numero real
+        
         if (caractereAtual == '.' && Character.isDigit(proxCaractere())) {
             lexema.append(caractereAtual);
             avancar();
-            // ler parte decimal
+            
             while (Character.isDigit(caractereAtual)) {
                 lexema.append(caractereAtual);
                 avancar();
@@ -127,11 +127,11 @@ public class ScannerLexico {
         return new TokenInformacoes(Token.NUMERO_INT, lexema.toString(), linha);
     }
 
-    // ler operadores ou delimitadores
+    
     private TokenInformacoes lerOperadorOuDelimitador() {
         int linhaAtual = linha;
         switch (caractereAtual) {
-            // operadores aritiméticos
+            
             case '+':
                 avancar();
                 return new TokenInformacoes(Token.MAIS, "+", linhaAtual);
@@ -144,7 +144,7 @@ public class ScannerLexico {
             case '/':
                 avancar();
                 return new TokenInformacoes(Token.DIV, "/", linhaAtual);
-            // delimitadores
+            
             case '.':
                 avancar();
                 return new TokenInformacoes(Token.PONTO, ".", linhaAtual);
@@ -163,7 +163,7 @@ public class ScannerLexico {
             case '$':
                 avancar();
                 return new TokenInformacoes(Token.DOLAR, "$", linhaAtual);
-            // atribuição pode ser tanto : ou :=
+            
             case ':':
                 avancar();
                 if (caractereAtual == '=') {
@@ -171,7 +171,7 @@ public class ScannerLexico {
                     return new TokenInformacoes(Token.ATRIB, ":=", linhaAtual);
                 }
                 return new TokenInformacoes(Token.DOIS_PONTOS, ":", linhaAtual);
-            // operadores relacionais
+            
             case '=':
                 avancar();
                 return new TokenInformacoes(Token.IGUAL, "=", linhaAtual);
@@ -193,37 +193,37 @@ public class ScannerLexico {
                 }
                 return new TokenInformacoes(Token.MAIOR, ">", linhaAtual);
             default:
-                return null; // nao reconhece o caractere
+                return null; 
         }
     }
 
-    // ler os tokens
+    
     public TokenInformacoes proximoToken() {
         pularEspacosEComentarios();
 
-        // fim do arquivo
+        
         if (caractereAtual == '\0') {
             return new TokenInformacoes(Token.EOF, "", linha);
         }
 
-        // se for letra, pode ser identificador ou palavra reservada
+        
         if (Character.isLetter(caractereAtual)) {
             return lerIdentificadorOuPalavraReservada();
         }
 
-        // se for número
+        
 
         if (Character.isDigit(caractereAtual)) {
             return lerNumero();
         }
 
-        // se for um operador
+        
         TokenInformacoes token = lerOperadorOuDelimitador();
         if (token != null) {
             return token;
         }
 
-        // se nao reconhece o caractere
+        
         char charInvalido = caractereAtual;
         avancar();
         throw new RuntimeException("Erro léxico na linha" + linha + ": caractere inválido'" + charInvalido + "'");
