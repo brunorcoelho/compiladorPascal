@@ -2353,7 +2353,123 @@ switch (op) {
 - [ ] Mostrar os tokens gerados
 - [ ] Mostrar a tabela de símbolos
 - [ ] Mostrar o código gerado
+- [ ] Mostrar arquivo .obj salvo
 - [ ] Executar e mostrar entrada/saída
 - [ ] Explicar um trecho de geração de código (IF ou WHILE)
 - [ ] Explicar backpatching com exemplo
 - [ ] Mostrar tratamento de erro (variável não declarada)
+
+---
+
+# 🆕 Atualizações Recentes
+
+## Correção: Passagem de Parâmetros
+
+### O Problema
+Os procedimentos não estavam recebendo os valores dos argumentos corretamente. Os parâmetros ficavam com valor zero.
+
+### A Causa
+1. A instrução `PARAM` na VM não fazia nada (só incrementava o PC)
+2. Não havia código para copiar os valores empilhados para os endereços dos parâmetros
+
+### A Solução
+
+**1. Modificação em `MaquinaVirtual.java`:**
+```java
+case "PARAM":
+    int endParam = Integer.parseInt(arg);
+    pilha.push(memoria[endParam]);
+    pc++;
+    break;
+```
+Agora `PARAM` empilha o valor do endereço especificado.
+
+**2. Modificação em `Parser.java`:**
+- Adicionada lista `enderecosParametros` para rastrear endereços
+- No início de cada procedimento, emite `ARMZ` para cada parâmetro (ordem reversa)
+
+```java
+for (int i = enderecosParametros.size() - 1; i >= 0; i--) {
+    gerador.emitir("ARMZ", enderecosParametros.get(i));
+}
+```
+
+### Fluxo Corrigido
+```
+Chamada dois(h, d, h):
+                        
+1. PARAM 7  → pilha: [4]
+2. PARAM 3  → pilha: [4, 0.5]
+3. PARAM 7  → pilha: [4, 0.5, 4]
+4. CHPR 46  → salta para procedimento
+
+No procedimento dois:
+5. ARMZ 18  → l = 4 (desempilha)
+6. ARMZ 17  → k = 0.5 (desempilha)
+7. ARMZ 16  → j = 4 (desempilha)
+   pilha: [] (vazia)
+```
+
+---
+
+## Nova Funcionalidade: Separação Compilação/Execução
+
+### Requisito
+O enunciado especifica:
+1. Salvar código objeto em arquivo de texto
+2. Ler arquivo de código objeto e executar
+
+### Implementação em `Main.java`
+
+**Parte 1 - Compilar e Salvar:**
+```java
+salvarCodigoObjeto(parser.getGerador().getCodigo(), caminhoObjeto);
+```
+
+**Parte 2 - Carregar e Executar:**
+```java
+List<Instrucao> codigoCarregado = carregarCodigoObjeto(caminhoObjeto);
+MaquinaVirtual vm = new MaquinaVirtual(codigoCarregado);
+vm.executar();
+```
+
+### Formato do Arquivo `.obj`
+```
+INPP
+ALME 1
+ALME 1
+...
+PARA
+```
+Uma instrução por linha, com operação e argumento separados por espaço.
+
+### Arquivo Gerado
+`descricao/saida.obj` - contém todas as instruções do código objeto.
+
+---
+
+## Como Rodar
+
+### Compilar os arquivos Java:
+```bash
+cd /home/bruno/Documentos/Universidade/Projeto\ de\ Compiladores/Trabalho
+javac -d bin src/compilador/*.java
+```
+
+### Executar o compilador:
+```bash
+java -cp bin compilador.Main
+```
+
+### Ou da pasta src:
+```bash
+cd src
+javac compilador/*.java
+java compilador.Main
+```
+
+O programa vai:
+1. Compilar `correto.pascal.txt`
+2. Salvar código objeto em `saida.obj`
+3. Carregar `saida.obj`
+4. Executar e pedir as entradas
