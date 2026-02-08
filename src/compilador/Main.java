@@ -14,15 +14,13 @@ public class Main {
 
         try {
 
-            System.out.println("=== COMPILADOR LALG ===\n");
-            System.out.println("Arquivo fonte: " + caminhoFonte);
-            System.out.println("------------------------\n");
+            System.out.println("=== COMPILADOR PASCAL DESCENDENTE RECURSIVO ===\n");
 
             String codigoFonte = new String(Files.readAllBytes(Paths.get(caminhoFonte)));
 
             ScannerLexico lexer = new ScannerLexico(codigoFonte);
 
-            System.out.println("=== TOKENS ENCONTRADOS ===\n");
+            System.out.println("=== TOKENS ENCONTRADOS ===");
             ScannerLexico lexerVisual = new ScannerLexico(codigoFonte);
             TokenInformacoes token;
             int contadorTokens = 0;
@@ -33,7 +31,7 @@ public class Main {
             } while (token.getTipo() != Token.EOF);
             System.out.println("\n>>> Total de tokens: " + contadorTokens + " <<<\n");
 
-            System.out.println("=== ANÁLISE SINTÁTICA ===\n");
+            System.out.println("=== ANÁLISE SINTÁTICA ===");
             Parser parser = new Parser(lexer);
             parser.parse();
 
